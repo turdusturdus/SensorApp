@@ -6,7 +6,9 @@
     <string name="gyroscope_values">Gyroscope Values: %1$s</string>
     <string name="location_permission_denied">Odmowa dostępu lokalizacji</string>
     <string name="unknown_sensor">Unknown Sensor Values: %1$s</string>
+    <string name="no_location">No location</string>
     <string name="location_text">"Szerokość geograficzna: %1$.4f \n Długość
 geograficzna: %2$.4f \n Czas: %3$tr"</string>
+
 
 </resources>
