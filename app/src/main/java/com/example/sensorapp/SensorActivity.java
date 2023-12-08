@@ -116,11 +116,15 @@ public class SensorActivity extends AppCompatActivity {
                     Intent intent = new Intent(context, SensorDetailsActivity.class);
                     intent.putExtra("sensorType", sensor.getType());
                     context.startActivity(intent);
-                } else{
+                } else if (sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+                    Intent intent = new Intent(context, LocationActivity.class);
+                    context.startActivity(intent);
+                } else {
                     displaySensorDetails(sensor);
                 }
             });
         }
+
 
         private void displaySensorDetails(Sensor sensor) {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);

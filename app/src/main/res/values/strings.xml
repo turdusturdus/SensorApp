@@ -2,5 +2,11 @@
     <string name="app_name">SensorApp</string>
     <string name="sensor_icon_description">Opis ikony czujnika</string>
     <string name="sensors_count">Liczba czujników: %d</string>
+    <string name="accelerometer_values">Accelerometer Values: %1$s</string>
+    <string name="gyroscope_values">Gyroscope Values: %1$s</string>
+    <string name="location_permission_denied">Odmowa dostępu lokalizacji</string>
+    <string name="unknown_sensor">Unknown Sensor Values: %1$s</string>
+    <string name="location_text">"Szerokość geograficzna: %1$.4f \n Długość
+geograficzna: %2$.4f \n Czas: %3$tr"</string>
 
 </resources>
