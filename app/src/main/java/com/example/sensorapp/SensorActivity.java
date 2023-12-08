@@ -1,13 +1,19 @@
 package com.example.sensorapp;
 
+import android.app.AlertDialog;
+import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,14 +30,43 @@ public class SensorActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sensor_activity);
 
-        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        sensorList = sensorManager.getSensorList(Sensor.TYPE_ALL);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         recyclerView = findViewById(R.id.sensor_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        sensorAdapter = new SensorAdapter(sensorList);
-        recyclerView.setAdapter(sensorAdapter);
+
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        sensorList = sensorManager.getSensorList(Sensor.TYPE_ALL);
+
+        if (sensorAdapter == null) {
+            sensorAdapter = new SensorAdapter(sensorList, this);
+            recyclerView.setAdapter(sensorAdapter);
+        } else {
+            sensorAdapter.notifyDataSetChanged();
+        }
+
+        invalidateOptionsMenu();
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.sensor_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        MenuItem sensorsCountItem = menu.findItem(R.id.action_sensors_count);
+        if (sensorsCountItem != null) {
+            String title = getString(R.string.sensors_count, sensorList.size());
+            sensorsCountItem.setTitle(title);
+        }
+        return true;
+    }
+
+
 
     private class SensorViewHolder extends RecyclerView.ViewHolder {
         ImageView sensorIcon;
@@ -46,9 +81,11 @@ public class SensorActivity extends AppCompatActivity {
 
     private class SensorAdapter extends RecyclerView.Adapter<SensorViewHolder> {
         private List<Sensor> sensors;
+        private Context context;
 
-        SensorAdapter(List<Sensor> sensors) {
+        SensorAdapter(List<Sensor> sensors, Context context) {
             this.sensors = sensors;
+            this.context = context;
         }
 
         @Override
@@ -59,9 +96,20 @@ public class SensorActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(SensorViewHolder holder, int position) {
-            Sensor sensor = sensors.get(position);
+            final Sensor sensor = sensors.get(position);
             holder.sensorName.setText(sensor.getName());
-            holder.sensorIcon.setImageResource(android.R.drawable.ic_menu_camera); // Zastąp 'ic_sensor_default' odpowiednim ID zasobu.
+            holder.sensorIcon.setImageResource(android.R.drawable.ic_menu_camera);
+
+            holder.sensorName.setOnLongClickListener(view -> {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle(sensor.getName())
+                        .setMessage("Producent: " + sensor.getVendor() +
+                                "\nMaksymalny zakres: " + sensor.getMaximumRange())
+                        .setPositiveButton(android.R.string.ok, (dialog, which) -> dialog.dismiss());
+                AlertDialog dialog = builder.create();
+                dialog.show();
+                return true;
+            });
         }
 
         @Override
