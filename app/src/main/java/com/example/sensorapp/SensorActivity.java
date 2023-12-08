@@ -2,6 +2,8 @@ package com.example.sensorapp;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
@@ -71,9 +73,11 @@ public class SensorActivity extends AppCompatActivity {
     private class SensorViewHolder extends RecyclerView.ViewHolder {
         ImageView sensorIcon;
         TextView sensorName;
+        View itemView;
 
         SensorViewHolder(View itemView) {
             super(itemView);
+            this.itemView = itemView;
             sensorIcon = itemView.findViewById(R.id.sensor_icon);
             sensorName = itemView.findViewById(R.id.sensor_name);
         }
@@ -82,6 +86,7 @@ public class SensorActivity extends AppCompatActivity {
     private class SensorAdapter extends RecyclerView.Adapter<SensorViewHolder> {
         private List<Sensor> sensors;
         private Context context;
+        private int selectedSensorType = -1;
 
         SensorAdapter(List<Sensor> sensors, Context context) {
             this.sensors = sensors;
@@ -100,16 +105,31 @@ public class SensorActivity extends AppCompatActivity {
             holder.sensorName.setText(sensor.getName());
             holder.sensorIcon.setImageResource(android.R.drawable.ic_menu_camera);
 
-            holder.sensorName.setOnLongClickListener(view -> {
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle(sensor.getName())
-                        .setMessage("Producent: " + sensor.getVendor() +
-                                "\nMaksymalny zakres: " + sensor.getMaximumRange())
-                        .setPositiveButton(android.R.string.ok, (dialog, which) -> dialog.dismiss());
-                AlertDialog dialog = builder.create();
-                dialog.show();
-                return true;
+            if (sensor.getType() == Sensor.TYPE_ACCELEROMETER || sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+                holder.itemView.setBackgroundColor(Color.GRAY);
+            } else {
+                holder.itemView.setBackgroundColor(Color.WHITE);
+            }
+
+            holder.itemView.setOnClickListener(view -> {
+                if (sensor.getType() == Sensor.TYPE_ACCELEROMETER || sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+                    Intent intent = new Intent(context, SensorDetailsActivity.class);
+                    intent.putExtra("sensorType", sensor.getType());
+                    context.startActivity(intent);
+                } else{
+                    displaySensorDetails(sensor);
+                }
             });
+        }
+
+        private void displaySensorDetails(Sensor sensor) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle(sensor.getName())
+                    .setMessage("Producent: " + sensor.getVendor() +
+                            "\nMaksymalny zakres: " + sensor.getMaximumRange())
+                    .setPositiveButton(android.R.string.ok, (dialog, which) -> dialog.dismiss());
+            AlertDialog dialog = builder.create();
+            dialog.show();
         }
 
         @Override
@@ -117,4 +137,5 @@ public class SensorActivity extends AppCompatActivity {
             return sensors.size();
         }
     }
+
 }
